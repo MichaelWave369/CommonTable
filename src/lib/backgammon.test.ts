@@ -123,7 +123,7 @@ describe('crowned checkers keep playing normally', () => {
     const opening = newCheckersGame();
     const board = opening.board.map((line) => line.map(() => null)) as typeof opening.board;
     board[1][2] = { player: 'ivory', king: false };
-    board[7][6] = { player: 'ember', king: false };
+    board[6][5] = { player: 'ember', king: false };
     const start = { ...opening, board };
     const crown = applyMove(start, { from: { row: 1, col: 2 }, to: { row: 0, col: 1 } });
     expect(crown.board).toHaveLength(8);
