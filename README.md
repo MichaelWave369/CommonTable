@@ -4,15 +4,16 @@
 
 A relaxing, original collection of classic tabletop games. Built for quiet evenings, friendly competition and people who just want to play. **Free, open source, without accounts, tracking, ads or paywalls.**
 
-## v0.4: offline opponents at the table
+## v0.5: Backgammon and crowned Checkers polish
 
 - **Checkers:** American Checkers with local two-player mode **or** solo play versus a built-in Ember opponent (Easy/Medium/Hard). Forced captures, multiple jumps, crowning, turn/win detection, and undo.
 - **Mahjong Solitaire:** A 72-tile layered Garden layout with 18 faces, a solvable initial deal, free-tile validation, hints, and re-deal of remaining tiles. *This is the matching puzzle, not four-player Mahjong.*
 - **Dominoes:** Original double-six two-player Draw Dominoes. Private local handoffs, boneyard, left/right placement, pass rules, win and blocked-hand scoring.
 - **Solitaire:** Original draw-one Klondike with stock/waste recycling, four foundations, legal tableau stack moves, card reveals, undo, hints and browser saves.
 - **Chess:** Original standard Chess with local two-player mode **or** solo play versus built-in Onyx (Easy/Medium/Hard). King-safety move validation, castling, en passant, all four promotion options, checkmate, stalemate, and draw detection. Includes move log, move highlights, board flip, undo and saved progress.
+- **Backgammon:** A playable standard-setup, two-player local game with dice rolls, doubles, mandatory dice usage, legal destinations, blocked points, hits/bar re-entry, bearing off, win detection, undo, and browser-local saves.
 - A cozy responsive parlor lobby, optional soft sound effects, browser-local saved games, and accessible button controls.
-- Coming-soon previews for Backgammon, Go, Reversi, and traditional four-player Mahjong.
+- Coming-soon previews for Go, Reversi, Mancala, and traditional four-player Mahjong.
 
 Game logic is written independently, with no imported gameplay engines.
 
@@ -43,7 +44,7 @@ Checkers supports either two people sharing a device or a single Ivory player fa
 
 Mahjong Solitaire begins with a removal path built into the deal. Alternative player choices can cause a dead end, so the remaining tiles can be re-dealt into another removable arrangement without changing their face counts. Re-dealing can change tile positions to repair a blocked stack. A tile is free when not covered and with at least one horizontal side unblocked.
 
-All five games are local-only. Games save to the current browser using localStorage; clearing browser data clears the saved games. Nothing is sent to a server.
+All six games are local-only. Games save to the current browser using localStorage; clearing browser data clears the saved games. Nothing is sent to a server.
 
 Dominoes is **Draw Dominoes**, not All Fives or a scoring league. Each player draws one tile at a time when blocked and must play when a legal match exists. When two players pass with an empty boneyard, the lower remaining pip total wins. The player's hand is concealed during turn handoff, but this is casual hot-seat play, not secure secrecy from someone inspecting browser storage.
 
@@ -59,9 +60,19 @@ The Chess and Checkers tables include a **Who’s Sitting Across?** mode switch 
 
 Easy uses shallow tactical evaluation; Medium searches a little further; Hard searches still further with a node budget to protect slower devices. These are **casual lightweight opponents**, not rated engines. Chess calculations may briefly occupy the main browser thread on slower hardware.
 
+### Backgammon (v0.5)
+
+Two people share the device. Ivory moves checkers from point 24 toward point 1, while Onyx travels from point 1 toward point 24. Roll to begin a turn. Play all dice when possible; doubles grant four moves. If only one of two distinct dice can be played, the higher die must be used. Opponent points containing two or more checkers cannot be entered. Hitting a single opposing checker sends it to the bar; bar checkers must re-enter first. Bear off once all fifteen of your checkers have reached home. The first side to bear off all fifteen wins.
+
+This relaxed implementation has no doubling cube, gammon/backgammon match scoring, opening-roll competition, or computer opponent. Ivory starts and rolls first. The remaining dice and legal destinations are displayed, and turns automatically pass when no legal continuation exists. Browser saves persist current state; undo history lasts until refresh.
+
+### Checkers visual correction (v0.5)
+
+Fixed 8 equal grid row heights and square 1:1 checker-piece dimensions. Crown symbols are absolutely positioned inside pieces so kings cannot distort the board layout. This only changes presentation; the original king movement rules remain unchanged.
+
 ## Roadmap
 
-- Backgammon, Go, Reversi, traditional four-player Mahjong, and additional Solitaire variants
+- Go, Reversi, Mancala, traditional four-player Mahjong, and additional Solitaire variants
 - Stronger search, computer-versus-computer lab mode, optional side selection, and opening books
 - Additional layouts and traditional four-player Mahjong (a separate game)
 - Optional installable offline PWA and online room-based multiplayer
