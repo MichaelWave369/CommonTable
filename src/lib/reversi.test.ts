@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  availableReversiMoves, flipsForMove, legalReversiMoves, newReversiGame,
+  availableReversiMoves, flipsForMove, newReversiGame,
   playReversiMove, reversiScore, type ReversiGame, type ReversiBoard,
 } from './reversi';
 import { chooseReversiMove, type ReversiDifficulty } from './reversi-ai';
