@@ -4,7 +4,7 @@
 
 A relaxing, original collection of classic tabletop games. Built for quiet evenings, friendly competition and people who just want to play. **Free, open source, without accounts, tracking, ads or paywalls.**
 
-## v0.6: Reversi joins the table
+## v0.7: Kalah Mancala at the eighth table
 
 - **Checkers:** American Checkers with local two-player mode **or** solo play versus a built-in Ember opponent (Easy/Medium/Hard). Forced captures, multiple jumps, crowning, turn/win detection, and undo.
 - **Mahjong Solitaire:** A 72-tile layered Garden layout with 18 faces, a solvable initial deal, free-tile validation, hints, and re-deal of remaining tiles. *This is the matching puzzle, not four-player Mahjong.*
@@ -13,8 +13,9 @@ A relaxing, original collection of classic tabletop games. Built for quiet eveni
 - **Chess:** Original standard Chess with local two-player mode **or** solo play versus built-in Onyx (Easy/Medium/Hard). King-safety move validation, castling, en passant, all four promotion options, checkmate, stalemate, and draw detection. Includes move log, move highlights, board flip, undo and saved progress.
 - **Backgammon:** A playable standard-setup, two-player local game with dice rolls, doubles, mandatory dice usage, legal destinations, blocked points, hits/bar re-entry, bearing off, win detection, undo, and browser-local saves.
 - **Reversi:** Original 8×8 game with legal flipping in eight directions, forced automatic passes, final disc-count scoring, move hints, highlights, undo and saved local progress. Supports pass-and-play or an Easy/Medium/Hard browser-local opponent.
+- **Mancala (Kalah):** Independent six-pit/four-stone Kalah game with counterclockwise sowing, captures, extra turns, game-end sweeping and winner/tie scoring. Play two people locally, or Ivory versus an original Easy/Medium/Hard offline Onyx opponent. Includes hint, undo and browser-local save.
 - A cozy responsive parlor lobby, optional soft sound effects, browser-local saved games, and accessible button controls.
-- Coming-soon previews for Go, Mancala, and traditional four-player Mahjong.
+- Coming-soon previews for Go, Nine Men's Morris, and traditional four-player Mahjong.
 
 Game logic is written independently, with no imported gameplay engines.
 
@@ -45,7 +46,7 @@ Checkers supports either two people sharing a device or a single Ivory player fa
 
 Mahjong Solitaire begins with a removal path built into the deal. Alternative player choices can cause a dead end, so the remaining tiles can be re-dealt into another removable arrangement without changing their face counts. Re-dealing can change tile positions to repair a blocked stack. A tile is free when not covered and with at least one horizontal side unblocked.
 
-All seven games are local-only. Games save to the current browser using localStorage; clearing browser data clears the saved games. Nothing is sent to a server.
+All eight games are local-only. Games save to the current browser using localStorage; clearing browser data clears the saved games. Nothing is sent to a server.
 
 Dominoes is **Draw Dominoes**, not All Fives or a scoring league. Each player draws one tile at a time when blocked and must play when a legal match exists. When two players pass with an empty boneyard, the lower remaining pip total wins. The player's hand is concealed during turn handoff, but this is casual hot-seat play, not secure secrecy from someone inspecting browser storage.
 
@@ -79,9 +80,15 @@ Choose **Two players** for on-device pass-and-play, or **Solo** to play Ivory ag
 
 Browser-local saves preserve your current game and opponent settings. Undo history is available during the current visit and can revert a complete player/computer exchange. Changing Solo/Two Players modes starts a fresh game. No web accounts, timer or server-side game state.
 
+### Mancala / Kalah (v0.7)
+
+The eighth table is **Kalah**, one particular two-player Mancala ruleset. Each side has six pits with four stones apiece, plus one scoring store. Ivory moves first. A player picks any nonempty pit on their side and sows all its stones counterclockwise, one at a time, skipping the opposing store. Landing your last stone in your own store grants another move. If the last stone lands in an empty pit on your own side opposite an occupied enemy pit, you capture both the last stone and those opposite stones into your store. When either side's six pits empty, the other player sweeps their remaining stones into their store. Most stored stones wins, equal scores tie. This release has no tournament clock or alternate regional Mancala variants.
+
+Choose **Two players** for local pass-and-play or **Solo** to play as Ivory against the browser-only Onyx computer. Easy uses a one-ply static evaluation, Medium three-ply and Hard six-ply bounded lookahead. These are casual search opponents, not professional solvers. Current game and options are kept in local browser storage, while undo history is retained only during the visit. Solo Undo reverses to the latest Ivory decision, including any intervening Onyx moves. Switching modes starts a new game; changing difficulty does not.
+
 ## Roadmap
 
-- Go, Reversi, Mancala, traditional four-player Mahjong, and additional Solitaire variants
+- Go, Nine Men's Morris, traditional four-player Mahjong, and additional Solitaire variants
 - Stronger search, computer-versus-computer lab mode, optional side selection, and opening books
 - Additional layouts and traditional four-player Mahjong (a separate game)
 - Optional installable offline PWA and online room-based multiplayer
