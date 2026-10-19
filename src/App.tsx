@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import DominoesRoom from './components/DominoesRoom';
 import SolitaireRoom from './components/SolitaireRoom';
 import ChessRoom from './components/ChessRoom';
+import { chooseCheckersMove, type Difficulty } from './lib/opponents';
 import { applyMove, legalMoves, movesFrom, newCheckersGame, type CheckersGame, type Position } from './lib/checkers';
 import { availablePairs, isFree, newMahjongGame, removePair, shuffleRemaining, type MahjongTile } from './lib/mahjong';
 
@@ -158,17 +159,40 @@ function Checkers({ sound }: { sound: boolean }) {
   const [game, setGame] = useState<CheckersGame>(() => saved('checkers', newCheckersGame, validCheckers));
   const [selected, setSelected] = useState<Position | null>(null);
   const [history, setHistory] = useState<CheckersGame[]>([]);
+  const [mode, setMode] = useState<'solo' | 'local'>(() =>
+    saved('checkers-mode', () => 'local' as const,
+      (value): value is 'solo' | 'local' => value === 'solo' || value === 'local'));
+  const [difficulty, setDifficulty] = useState<Difficulty>(() =>
+    saved('checkers-level', () => 'medium' as const,
+      (value): value is Difficulty => value === 'easy' || value === 'medium' || value === 'hard'));
+  const computerTurn = mode === 'solo' && game.turn === 'ember' && !game.winner;
   const moves = useMemo(() => legalMoves(game), [game]);
   const targets = selected ? movesFrom(game, selected) : [];
   useEffect(() => { persist('checkers', game); }, [game]);
+  useEffect(() => { persist('checkers-mode', mode); }, [mode]);
+  useEffect(() => { persist('checkers-level', difficulty); }, [difficulty]);
+  useEffect(() => {
+    if (!computerTurn) return;
+    const timer = window.setTimeout(() => {
+      const choice = chooseCheckersMove(game, difficulty);
+      if (!choice) return;
+      const next = applyMove(game, choice);
+      if (next === game) return;
+      setHistory((stack) => [...stack.slice(-199), game]);
+      setGame(next);
+      setSelected(null);
+      playClick(sound, choice.jumped ? 350 : 490);
+    }, 280);
+    return () => window.clearTimeout(timer);
+  }, [game, difficulty, computerTurn, sound]);
 
   function choose(row: number, col: number) {
-    if (game.winner) return;
+    if (game.winner || computerTurn) return;
     const target = targets.find((move) => move.to.row === row && move.to.col === col);
     if (target) {
       const next = applyMove(game, target);
       if (next === game) return;
-      setHistory((stack) => [...stack, game]);
+      setHistory((stack) => [...stack.slice(-199), game]);
       setGame(next);
       setSelected(next.forcedFrom);
       playClick(sound, target.jumped ? 380 : 510);
@@ -182,12 +206,20 @@ function Checkers({ sound }: { sound: boolean }) {
     }
   }
   const reset = () => { setGame(newCheckersGame()); setHistory([]); setSelected(null); playClick(sound); };
+  const undoIndex = mode === 'solo'
+    ? history.map((state) => state.turn === 'ivory' && state.forcedFrom === null).lastIndexOf(true)
+    : history.length - 1;
   const undo = () => {
-    if (!history.length) return;
-    setGame(history[history.length - 1]);
-    setHistory((stack) => stack.slice(0, -1));
+    if (undoIndex < 0) return;
+    setGame(history[undoIndex]);
+    setHistory((stack) => stack.slice(0, undoIndex));
     setSelected(null);
     playClick(sound);
+  };
+  const changeMode = (next: 'solo' | 'local') => {
+    if (next === mode) return;
+    setMode(next);
+    reset();
   };
   const counts = {
     ivory: game.board.flat().filter((p) => p?.player === 'ivory').length,
@@ -205,7 +237,7 @@ function Checkers({ sound }: { sound: boolean }) {
               const destination = targets.some((m) => m.to.row === row && m.to.col === col);
               return <button key={row + '-' + col} type="button" className={[
                 'checker-cell', dark ? 'dark' : 'light', active ? 'selected' : '', destination ? 'destination' : '',
-              ].join(' ')} disabled={!dark} onClick={() => choose(row, col)}
+              ].join(' ')} disabled={!dark || computerTurn} onClick={() => choose(row, col)}
               aria-label={'Row ' + (row + 1) + ', column ' + (col + 1) +
                 (piece ? ', ' + piece.player + (piece.king ? ' king' : ' piece') : ', empty') +
                 (destination ? ', legal move' : '')}
@@ -219,18 +251,35 @@ function Checkers({ sound }: { sound: boolean }) {
         </div>
         <aside className="game-aside">
           <div className="aside-overline">THE GAME IS ON</div>
-          <h2>{game.winner ? (game.winner === 'ivory' ? 'Ivory wins!' : 'Ember wins!') : (game.turn === 'ivory' ? "Ivory's turn" : "Ember's turn")}</h2>
+          <h2 aria-live="polite">{game.winner ? (game.winner === 'ivory' ? 'Ivory wins!' : 'Ember wins!') : computerTurn ? 'Ember is thinking…' : (game.turn === 'ivory' ? "Ivory's turn" : "Ember's turn")}</h2>
           <p className="game-message">{game.winner ? 'A game well played. Fancy another?' :
+            computerTurn ? 'The computer is choosing a legal move. The board will update automatically.' :
             game.forcedFrom ? 'Keep jumping! Your capture continues.' :
             moves.some((move) => move.jumped) ? 'A capture is available. Jumps are required.' :
             'Select one of your pieces, then a highlighted square.'}</p>
           <div className="player-strip"><span><i className="mini-piece ivory" /> IVORY</span><strong>{counts.ivory}</strong></div>
           <div className="player-strip"><span><i className="mini-piece ember" /> EMBER</span><strong>{counts.ember}</strong></div>
+          <div className="opponent-controls">
+            <label htmlFor="checkers-opponent">WHO'S SITTING ACROSS?</label>
+            <select id="checkers-opponent" value={mode} onChange={(e) => changeMode(e.target.value as 'solo' | 'local')}>
+              <option value="local">Two players · same device</option>
+              <option value="solo">Solo · play Ember AI</option>
+            </select>
+            {mode === 'solo' && <>
+              <label htmlFor="checkers-difficulty">COMPUTER DIFFICULTY</label>
+              <select id="checkers-difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value as Difficulty)}>
+                <option value="easy">Easy · relaxed</option>
+                <option value="medium">Medium · thoughtful</option>
+                <option value="hard">Hard · looks further ahead</option>
+              </select>
+            </>}
+            <p>Switching play modes starts a fresh game. Difficulty can change at any time.</p>
+          </div>
           <div className="aside-controls">
             <button className="gold-button" onClick={reset}>New game ↺</button>
-            <button className="quiet-button" onClick={undo} disabled={!history.length}>Undo last move</button>
+            <button className="quiet-button" onClick={undo} disabled={undoIndex < 0}>{mode === 'solo' ? 'Undo last turn' : 'Undo last move'}</button>
           </div>
-          <div className="how-to"><h3>At this table</h3><p>Two players share this device. Ivory goes first. Move diagonally on dark squares, jump to capture, and reach the far side to become a king.</p><p>Captures are mandatory. A chain of jumps must be completed. Crowning ends the turn.</p></div>
+          <div className="how-to"><h3>At this table</h3><p>{mode === 'solo' ? 'You play Ivory and the offline computer plays Ember.' : 'Two players share this device.'} Ivory goes first. Move diagonally on dark squares, jump to capture, and reach the far side to become a king.</p><p>Captures are mandatory. A chain of jumps must be completed. Crowning ends the turn.</p></div>
         </aside>
       </div>
     </section>
