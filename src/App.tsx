@@ -58,7 +58,7 @@ function playClick(enabled: boolean, frequency = 520): void {
 const upcoming = [
   { title: 'Go', subtitle: 'A thousand conversations in black and white.', symbol: '●' },
   { title: 'Four-player Mahjong', subtitle: 'The full tile-table tradition.', symbol: '中' },
-  { title: 'Nine Men's Morris', subtitle: 'Ancient patterns and clever moves.', symbol: '◈' },
+  { title: "Nine Men\'s Morris", subtitle: "Ancient patterns and clever moves.", symbol: "◈" },
 ];
 
 function Brand() {
