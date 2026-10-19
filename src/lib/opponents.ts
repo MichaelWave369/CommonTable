@@ -3,7 +3,7 @@ import {
 } from './checkers';
 import {
   inCheck, legalChessMoves, previewChessMove,
-  type ChessGame, type ChessMove, type Color, type PieceType,
+  type ChessGame, type ChessMove, type PieceType,
 } from './chess';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
