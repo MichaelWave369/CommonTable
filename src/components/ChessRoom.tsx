@@ -138,7 +138,7 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
     onSound();
   }
   const undoIndex = mode === 'solo'
-    ? history.findLastIndex((state) => state.turn === 'white')
+    ? history.map((state) => state.turn === 'white').lastIndexOf(true)
     : history.length - 1;
   function undo() {
     if (undoIndex < 0) return;
