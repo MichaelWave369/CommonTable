@@ -207,7 +207,7 @@ function Checkers({ sound }: { sound: boolean }) {
   }
   const reset = () => { setGame(newCheckersGame()); setHistory([]); setSelected(null); playClick(sound); };
   const undoIndex = mode === 'solo'
-    ? history.findLastIndex((state) => state.turn === 'ivory' && state.forcedFrom === null)
+    ? history.map((state) => state.turn === 'ivory' && state.forcedFrom === null).lastIndexOf(true)
     : history.length - 1;
   const undo = () => {
     if (undoIndex < 0) return;
