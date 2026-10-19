@@ -3,11 +3,12 @@ import DominoesRoom from './components/DominoesRoom';
 import SolitaireRoom from './components/SolitaireRoom';
 import ChessRoom from './components/ChessRoom';
 import BackgammonRoom from './components/BackgammonRoom';
+import ReversiRoom from './components/ReversiRoom';
 import { chooseCheckersMove, type Difficulty } from './lib/opponents';
 import { applyMove, legalMoves, movesFrom, newCheckersGame, type CheckersGame, type Position } from './lib/checkers';
 import { availablePairs, isFree, newMahjongGame, removePair, shuffleRemaining, type MahjongTile } from './lib/mahjong';
 
-type Room = 'lobby' | 'checkers' | 'mahjong' | 'dominoes' | 'solitaire' | 'chess' | 'backgammon';
+type Room = 'lobby' | 'checkers' | 'mahjong' | 'dominoes' | 'solitaire' | 'chess' | 'backgammon' | 'reversi';
 
 function saved<T>(key: string, fallback: () => T, validate: (value: unknown) => value is T): T {
   try {
@@ -56,7 +57,6 @@ function playClick(enabled: boolean, frequency = 520): void {
 const upcoming = [
   { title: 'Go', subtitle: 'A thousand conversations in black and white.', symbol: '●' },
   { title: 'Four-player Mahjong', subtitle: 'The full tile-table tradition.', symbol: '中' },
-  { title: 'Reversi', subtitle: 'Turn the table, one piece at a time.', symbol: '◉' },
   { title: 'Mancala', subtitle: 'One move can change everything.', symbol: '◌' },
 ];
 
@@ -99,7 +99,7 @@ function Lobby({ onEnter }: { onEnter: (room: Room) => void }) {
       <section className="games-section" id="tables">
         <div className="section-head">
           <div><div className="overline">01 / THE TABLES</div><h2>What shall we play?</h2></div>
-          <div className="section-side">SIX TABLES ARE READY FOR YOU <span className="little-spark">✣</span></div>
+          <div className="section-side">SEVEN TABLES ARE READY FOR YOU <span className="little-spark">✣</span></div>
         </div>
         <div className="table-grid">
           <button className="game-card checkers-card" onClick={() => onEnter('checkers')}>
@@ -150,6 +150,21 @@ function Lobby({ onEnter }: { onEnter: (room: Room) => void }) {
               <span className="backgammon-preview-point">▼<i>●</i><i>●</i></span>
             </div>
             <div className="game-card-bottom"><div><h3>Backgammon</h3><p>Every roll tells a story.</p><span className="game-meta">2 PLAYERS · DICE & STRATEGY</span></div><span className="round-arrow">↗</span></div>
+          </button>
+          <button className="game-card reversi-card" onClick={() => onEnter('reversi')}>
+            <div className="game-card-top"><span className="game-number">TABLE NO. 07</span><span className="live-tag">● OPEN</span></div>
+            <div className="reversi-preview" aria-hidden="true">
+              {Array.from({ length: 36 }, (_, i) => {
+                const r = Math.floor(i / 6), c = i % 6;
+                const ivory = (r === 1 && c === 2) || (r === 3 && c === 3) || (r === 4 && c === 1) || (r === 4 && c === 4);
+                const onyx = (r === 1 && c === 3) || (r === 2 && c === 2) || (r === 2 && c === 3) ||
+                  (r === 3 && c === 2) || (r === 3 && c === 4) || (r === 4 && c === 3);
+                return <span className="rv-preview-square" key={i}>
+                  {(ivory || onyx) && <i className={'rv-preview-disc ' + (ivory ? 'ivory' : 'onyx')}/>}
+                </span>;
+              })}
+            </div>
+            <div className="game-card-bottom"><div><h3>Reversi</h3><p>One move can turn everything around.</p><span className="game-meta">SOLO OR 2 PLAYERS · FLIP THE BOARD</span></div><span className="round-arrow">↗</span></div>
           </button>
         </div>
       </section>
@@ -400,6 +415,7 @@ export default function App() {
           <button className={room === 'solitaire' ? 'nav-active' : ''} onClick={() => enter('solitaire')}>Solitaire</button>
           <button className={room === 'chess' ? 'nav-active' : ''} onClick={() => enter('chess')}>Chess</button>
           <button className={room === 'backgammon' ? 'nav-active' : ''} onClick={() => enter('backgammon')}>Backgammon</button>
+          <button className={room === 'reversi' ? 'nav-active' : ''} onClick={() => enter('reversi')}>Reversi</button>
           <button className="sound-button" onClick={() => setSound((v) => !v)} aria-label={sound ? 'Mute sound effects' : 'Enable sound effects'} aria-pressed={sound}>{sound ? '♫' : '♩'}</button>
         </nav>
       </header>
@@ -409,7 +425,8 @@ export default function App() {
         room === 'dominoes' ? <DominoesRoom onSound={() => playClick(sound, 420)} /> :
         room === 'solitaire' ? <SolitaireRoom onSound={() => playClick(sound, 600)} /> :
         room === 'chess' ? <ChessRoom onSound={() => playClick(sound, 460)} /> :
-        <BackgammonRoom onSound={() => playClick(sound, 520)} />}
+        room === 'backgammon' ? <BackgammonRoom onSound={() => playClick(sound, 520)} /> :
+        <ReversiRoom onSound={() => playClick(sound, 480)} />}
       <footer className="site-footer"><span>✣ THE COMMON TABLE</span><span>MADE FOR THE JOY OF A GOOD GAME · FREE & OPEN SOURCE</span><span>EST. 2026</span></footer>
     </div>
   );
