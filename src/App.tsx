@@ -4,11 +4,12 @@ import SolitaireRoom from './components/SolitaireRoom';
 import ChessRoom from './components/ChessRoom';
 import BackgammonRoom from './components/BackgammonRoom';
 import ReversiRoom from './components/ReversiRoom';
+import MancalaRoom from './components/MancalaRoom';
 import { chooseCheckersMove, type Difficulty } from './lib/opponents';
 import { applyMove, legalMoves, movesFrom, newCheckersGame, type CheckersGame, type Position } from './lib/checkers';
 import { availablePairs, isFree, newMahjongGame, removePair, shuffleRemaining, type MahjongTile } from './lib/mahjong';
 
-type Room = 'lobby' | 'checkers' | 'mahjong' | 'dominoes' | 'solitaire' | 'chess' | 'backgammon' | 'reversi';
+type Room = 'lobby' | 'checkers' | 'mahjong' | 'dominoes' | 'solitaire' | 'chess' | 'backgammon' | 'reversi' | 'mancala';
 
 function saved<T>(key: string, fallback: () => T, validate: (value: unknown) => value is T): T {
   try {
@@ -57,7 +58,7 @@ function playClick(enabled: boolean, frequency = 520): void {
 const upcoming = [
   { title: 'Go', subtitle: 'A thousand conversations in black and white.', symbol: '●' },
   { title: 'Four-player Mahjong', subtitle: 'The full tile-table tradition.', symbol: '中' },
-  { title: 'Mancala', subtitle: 'One move can change everything.', symbol: '◌' },
+  { title: "Nine Men\'s Morris", subtitle: "Ancient patterns and clever moves.", symbol: "◈" },
 ];
 
 function Brand() {
@@ -99,7 +100,7 @@ function Lobby({ onEnter }: { onEnter: (room: Room) => void }) {
       <section className="games-section" id="tables">
         <div className="section-head">
           <div><div className="overline">01 / THE TABLES</div><h2>What shall we play?</h2></div>
-          <div className="section-side">SEVEN TABLES ARE READY FOR YOU <span className="little-spark">✣</span></div>
+          <div className="section-side">EIGHT TABLES ARE READY FOR YOU <span className="little-spark">✣</span></div>
         </div>
         <div className="table-grid">
           <button className="game-card checkers-card" onClick={() => onEnter('checkers')}>
@@ -165,6 +166,22 @@ function Lobby({ onEnter }: { onEnter: (room: Room) => void }) {
               })}
             </div>
             <div className="game-card-bottom"><div><h3>Reversi</h3><p>One move can turn everything around.</p><span className="game-meta">SOLO OR 2 PLAYERS · FLIP THE BOARD</span></div><span className="round-arrow">↗</span></div>
+          </button>
+          <button className="game-card mancala-card" onClick={() => onEnter('mancala')}>
+            <div className="game-card-top"><span className="game-number">TABLE NO. 08</span><span className="live-tag">● OPEN</span></div>
+            <div className="mancala-preview" aria-hidden="true">
+              <span className="mn-preview-store">✦</span>
+              <span className="mn-preview-middle">
+                <span className="mn-preview-pits">
+                  {Array.from({ length: 6 }, (_, i) => <i key={i}>••</i>)}
+                </span>
+                <span className="mn-preview-pits">
+                  {Array.from({ length: 6 }, (_, i) => <i key={i}>••</i>)}
+                </span>
+              </span>
+              <span className="mn-preview-store">✦</span>
+            </div>
+            <div className="game-card-bottom"><div><h3>Mancala</h3><p>Count the stones. Find your rhythm.</p><span className="game-meta">SOLO OR 2 PLAYERS · KALAH</span></div><span className="round-arrow">↗</span></div>
           </button>
         </div>
       </section>
@@ -416,6 +433,7 @@ export default function App() {
           <button className={room === 'chess' ? 'nav-active' : ''} onClick={() => enter('chess')}>Chess</button>
           <button className={room === 'backgammon' ? 'nav-active' : ''} onClick={() => enter('backgammon')}>Backgammon</button>
           <button className={room === 'reversi' ? 'nav-active' : ''} onClick={() => enter('reversi')}>Reversi</button>
+          <button className={room === 'mancala' ? 'nav-active' : ''} onClick={() => enter('mancala')}>Mancala</button>
           <button className="sound-button" onClick={() => setSound((v) => !v)} aria-label={sound ? 'Mute sound effects' : 'Enable sound effects'} aria-pressed={sound}>{sound ? '♫' : '♩'}</button>
         </nav>
       </header>
@@ -426,7 +444,8 @@ export default function App() {
         room === 'solitaire' ? <SolitaireRoom onSound={() => playClick(sound, 600)} /> :
         room === 'chess' ? <ChessRoom onSound={() => playClick(sound, 460)} /> :
         room === 'backgammon' ? <BackgammonRoom onSound={() => playClick(sound, 520)} /> :
-        <ReversiRoom onSound={() => playClick(sound, 480)} />}
+        room === 'reversi' ? <ReversiRoom onSound={() => playClick(sound, 480)} /> :
+        <MancalaRoom onSound={() => playClick(sound, 560)} />}
       <footer className="site-footer"><span>✣ THE COMMON TABLE</span><span>MADE FOR THE JOY OF A GOOD GAME · FREE & OPEN SOURCE</span><span>EST. 2026</span></footer>
     </div>
   );
