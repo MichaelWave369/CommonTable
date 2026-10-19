@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   availableReversiMoves, newReversiGame, playReversiMove, reversiScore,
-  type ReversiGame, type ReversiMove, type ReversiPlayer,
+  type ReversiGame, type ReversiMove,
 } from '../lib/reversi';
 import { chooseReversiMove, type ReversiDifficulty } from '../lib/reversi-ai';
 
