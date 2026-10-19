@@ -38,7 +38,7 @@ The URL is not live until deployment succeeds.
 
 Checkers currently supports two people sharing a device, not a bot. Rules follow American Checkers (men move and capture forward; kings in both directions; mandatory jumps; reaching the king row ends the turn). Undo and a fresh game are available.
 
-Mahjong Solitaire begins with a removal path built into the deal. Alternative player choices can cause a dead end, so the remaining tiles can be reshuffled into another removable arrangement without changing their face counts. A tile is free when not covered and with at least one horizontal side unblocked.
+Mahjong Solitaire begins with a removal path built into the deal. Alternative player choices can cause a dead end, so the remaining tiles can be re-dealt into another removable arrangement without changing their face counts. Re-dealing can change tile positions to repair a blocked stack. A tile is free when not covered and with at least one horizontal side unblocked.
 
 Both games are local-only. Games save to the current browser using localStorage; clearing browser data clears the saved games. Nothing is sent to a server.
 
