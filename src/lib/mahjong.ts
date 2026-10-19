@@ -52,32 +52,63 @@ function shuffled<T>(items: T[]): T[] {
   return result;
 }
 
-// Assign matching faces in an order that can always be removed from an
-// unplayed layout. A different sequence of player matches may still require a shuffle.
-function assignSolvable(slots: Slot[], pairFaces: string[]): MahjongTile[] {
-  const remaining: MahjongTile[] = slots.map((slot) => ({ ...slot, face: '' }));
-  const byId = new Map<string, string>();
-  for (const face of shuffled(pairFaces)) {
-    const free = shuffled(remaining.filter((tile) => isFree(remaining, tile)));
-    if (free.length < 2) throw new Error('Garden layout has no removal path');
-    for (const tile of free.slice(0, 2)) {
-      byId.set(tile.id, face);
-      remaining.splice(remaining.findIndex((t) => t.id === tile.id), 1);
+// A verified geometric removal order: uncover the upper tier, peel both ends
+// of each base row, then remove the six exposed center tiles in pairs.
+// Each entry is a pair of simultaneously free positions.
+function canonicalRemovalPairs(): [Slot, Slot][] {
+  const slots = gardenSlots();
+  const by = (layer: number, row: number, col: number): Slot => {
+    const tile = slots.find((slot) => slot.layer === layer && slot.row === row && slot.col === col);
+    if (!tile) throw new Error('Invalid Garden position');
+    return tile;
+  };
+  const pairs: [Slot, Slot][] = [];
+  for (let row = 1; row <= 3; row++) {
+    for (let edge = 0; edge < 3; edge++) {
+      pairs.push([by(1, row, 2 + edge), by(1, row, 7 - edge)]);
     }
   }
-  return slots.map((slot) => ({ ...slot, face: byId.get(slot.id)! }));
+  for (let row = 0; row < 6; row++) {
+    for (let edge = 0; edge < 4; edge++) {
+      pairs.push([by(0, row, edge), by(0, row, 8 - edge)]);
+    }
+  }
+  for (let row = 0; row < 6; row += 2) {
+    pairs.push([by(0, row, 4), by(0, row + 1, 4)]);
+  }
+  return pairs;
+}
+const REMOVAL_PAIRS = canonicalRemovalPairs();
+
+function dealOnPairs(pairs: [Slot, Slot][], pairFaces: string[]): MahjongTile[] {
+  if (pairs.length !== pairFaces.length) throw new Error('Expected one face for every pair');
+  const assignments = new Map<string, string>();
+  shuffled(pairFaces).forEach((face, i) => {
+    const [a, b] = pairs[i];
+    assignments.set(a.id, face);
+    assignments.set(b.id, face);
+  });
+  // Rendering order remains bottom tier first, top tier second.
+  return gardenSlots()
+    .filter((slot) => assignments.has(slot.id))
+    .map((slot) => ({ ...slot, face: assignments.get(slot.id)! }));
 }
 
 export function newMahjongGame(): MahjongTile[] {
-  return assignSolvable(gardenSlots(), FACES.flatMap((face) => [face, face]));
+  return dealOnPairs(REMOVAL_PAIRS, FACES.flatMap((face) => [face, face]));
 }
 
 export function shuffleRemaining(tiles: MahjongTile[]): MahjongTile[] {
+  if (tiles.length === 0) return tiles;
   const counts = new Map<string, number>();
   for (const tile of tiles) counts.set(tile.face, (counts.get(tile.face) || 0) + 1);
   if ([...counts.values()].some((count) => count % 2 !== 0)) return tiles;
   const pairFaces = [...counts.entries()].flatMap(([face, count]) => Array(count / 2).fill(face) as string[]);
-  return assignSolvable(tiles.map(({ id, row, col, layer }) => ({ id, row, col, layer })), pairFaces);
+  // A face-only shuffle cannot repair an isolated vertical stack, where just
+  // one tile is free. Re-deal all remaining tiles into a safe Garden shape.
+  // Face multiplicities, remaining tile count and progress are preserved.
+  const pairs = REMOVAL_PAIRS.slice(REMOVAL_PAIRS.length - pairFaces.length);
+  return dealOnPairs(pairs, pairFaces);
 }
 
 export function removePair(tiles: MahjongTile[], aId: string, bId: string): MahjongTile[] {
