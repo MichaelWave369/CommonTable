@@ -481,3 +481,42 @@ h1, h2, h3, p { margin-top: 0; }
   .chess-piece { font-size: clamp(28px, 8vw, 47px); }
   .chess-preview span { width: 48px; height: 76px; font-size: 40px; }
 }
+
+
+/* v0.4: optional on-device computer opponents */
+.opponent-controls {
+  display: grid;
+  gap: 9px;
+  border-top: 1px solid #ffffff20;
+  padding: 19px 0 3px;
+  margin-top: 21px;
+}
+.opponent-controls label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: #d8bd8a;
+}
+.opponent-controls select {
+  width: 100%;
+  min-height: 41px;
+  padding: 9px 12px;
+  appearance: auto;
+  background: #173126;
+  color: #f3e5c7;
+  border: 1px solid #718777;
+  border-radius: 4px;
+  font: 600 12px 'DM Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+.opponent-controls select:focus-visible { outline: 3px solid #ddb87d; outline-offset: 2px; }
+.opponent-controls select:disabled { opacity: .5; cursor: not-allowed; }
+.opponent-controls label:not(:first-child) { margin-top: 8px; }
+.opponent-controls p {
+  color: #b2c3af;
+  font-size: 10px;
+  line-height: 1.6;
+  margin: 3px 0 0;
+}
+.chess-square:disabled { cursor: wait; opacity: 1; }
+.checker-cell.dark:disabled { cursor: wait; }
