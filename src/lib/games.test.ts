@@ -55,7 +55,19 @@ describe('Garden Mahjong Solitaire', () => {
     expect(removePair(tiles, tiles[0].id, tiles[1].id)).toBe(tiles);
   });
 
-  it('can clear its generated layout and reshuffle its remainder', () => {
+  it('rescues a vertical-stack dead end by re-dealing existing faces', () => {
+    const trapped = [
+      { id: 'base-2-4', layer: 0, row: 2, col: 4, face: 'B1' },
+      { id: 'top-2-4', layer: 1, row: 2, col: 4, face: 'B1' },
+    ];
+    expect(availablePairs(trapped)).toHaveLength(0);
+    const repacked = shuffleRemaining(trapped);
+    expect(repacked).toHaveLength(2);
+    expect(availablePairs(repacked)).toHaveLength(1);
+    expect(repacked.map((t) => t.face)).toEqual(['B1', 'B1']);
+  });
+
+  it('can clear its generated layout by re-dealing after each match', () => {
     let tiles = newMahjongGame();
     const first = availablePairs(tiles)[0];
     tiles = removePair(tiles, first[0].id, first[1].id);
