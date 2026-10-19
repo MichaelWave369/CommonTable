@@ -197,6 +197,15 @@ function pseudoMoves(game: ChessGame, from: Square): ChessMove[] {
   return results;
 }
 
+/**
+ * Fast immutable simulation for computer-opponent search.
+ * Call only with a move produced by legalChessMoves for this position.
+ * Unlike playChessMove, this intentionally skips move logs and draw adjudication.
+ */
+export function previewChessMove(game: ChessGame, move: ChessMove): ChessGame {
+  return executeWithoutStatus(game, move);
+}
+
 function executeWithoutStatus(game: ChessGame, move: ChessMove): ChessGame {
   const board = cloneBoard(game.board);
   const moving = board[move.from.row][move.from.col]!;
