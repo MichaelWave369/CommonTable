@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import DominoesRoom from './components/DominoesRoom';
 import SolitaireRoom from './components/SolitaireRoom';
+import ChessRoom from './components/ChessRoom';
 import { applyMove, legalMoves, movesFrom, newCheckersGame, type CheckersGame, type Position } from './lib/checkers';
 import { availablePairs, isFree, newMahjongGame, removePair, shuffleRemaining, type MahjongTile } from './lib/mahjong';
 
-type Room = 'lobby' | 'checkers' | 'mahjong' | 'dominoes' | 'solitaire';
+type Room = 'lobby' | 'checkers' | 'mahjong' | 'dominoes' | 'solitaire' | 'chess';
 
 function saved<T>(key: string, fallback: () => T, validate: (value: unknown) => value is T): T {
   try {
@@ -51,10 +52,10 @@ function playClick(enabled: boolean, frequency = 520): void {
 }
 
 const upcoming = [
-  { title: 'Chess', subtitle: 'A game of kings and quiet strategy.', symbol: '♞' },
   { title: 'Backgammon', subtitle: 'Roll the dice, enjoy the journey.', symbol: '⚄' },
   { title: 'Go', subtitle: 'A thousand conversations in black and white.', symbol: '●' },
   { title: 'Four-player Mahjong', subtitle: 'The full tile-table tradition.', symbol: '中' },
+  { title: 'Reversi', subtitle: 'Turn the table, one piece at a time.', symbol: '◉' },
 ];
 
 function Brand() {
@@ -96,7 +97,7 @@ function Lobby({ onEnter }: { onEnter: (room: Room) => void }) {
       <section className="games-section" id="tables">
         <div className="section-head">
           <div><div className="overline">01 / THE TABLES</div><h2>What shall we play?</h2></div>
-          <div className="section-side">FOUR TABLES ARE READY FOR YOU <span className="little-spark">✣</span></div>
+          <div className="section-side">FIVE TABLES ARE READY FOR YOU <span className="little-spark">✣</span></div>
         </div>
         <div className="table-grid">
           <button className="game-card checkers-card" onClick={() => onEnter('checkers')}>
@@ -131,6 +132,11 @@ function Lobby({ onEnter }: { onEnter: (room: Room) => void }) {
             <div className="game-card-top"><span className="game-number">TABLE NO. 04</span><span className="live-tag">● OPEN</span></div>
             <div className="solitaire-preview" aria-hidden="true"><span>♠<small>A</small></span><span>♥<small>Q</small></span><span>♣<small>7</small></span><span>♦<small>K</small></span></div>
             <div className="game-card-bottom"><div><h3>Solitaire</h3><p>A little peace and a deck of cards.</p><span className="game-meta">SOLO · DRAW-ONE KLONDIKE</span></div><span className="round-arrow">↗</span></div>
+          </button>
+          <button className="game-card chess-card" onClick={() => onEnter('chess')}>
+            <div className="game-card-top"><span className="game-number">TABLE NO. 05</span><span className="live-tag">● OPEN</span></div>
+            <div className="chess-preview" aria-hidden="true"><span>♜</span><span>♞</span><span>♚</span><span>♛</span><span>♙</span><span>♔</span></div>
+            <div className="game-card-bottom"><div><h3>Chess</h3><p>A game of kings and quiet strategy.</p><span className="game-meta">2 PLAYERS · CLASSICAL CHESS</span></div><span className="round-arrow">↗</span></div>
           </button>
         </div>
       </section>
@@ -331,6 +337,7 @@ export default function App() {
           <button className={room === 'mahjong' ? 'nav-active' : ''} onClick={() => enter('mahjong')}>Mahjong</button>
           <button className={room === 'dominoes' ? 'nav-active' : ''} onClick={() => enter('dominoes')}>Dominoes</button>
           <button className={room === 'solitaire' ? 'nav-active' : ''} onClick={() => enter('solitaire')}>Solitaire</button>
+          <button className={room === 'chess' ? 'nav-active' : ''} onClick={() => enter('chess')}>Chess</button>
           <button className="sound-button" onClick={() => setSound((v) => !v)} aria-label={sound ? 'Mute sound effects' : 'Enable sound effects'} aria-pressed={sound}>{sound ? '♫' : '♩'}</button>
         </nav>
       </header>
@@ -338,7 +345,8 @@ export default function App() {
         room === 'checkers' ? <Checkers sound={sound} /> :
         room === 'mahjong' ? <Mahjong sound={sound} /> :
         room === 'dominoes' ? <DominoesRoom onSound={() => playClick(sound, 420)} /> :
-        <SolitaireRoom onSound={() => playClick(sound, 600)} />}
+        room === 'solitaire' ? <SolitaireRoom onSound={() => playClick(sound, 600)} /> :
+        <ChessRoom onSound={() => playClick(sound, 460)} />}
       <footer className="site-footer"><span>✣ THE COMMON TABLE</span><span>MADE FOR THE JOY OF A GOOD GAME · FREE & OPEN SOURCE</span><span>EST. 2026</span></footer>
     </div>
   );
