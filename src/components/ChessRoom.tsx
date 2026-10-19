@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { chooseChessMove, type Difficulty } from '../lib/opponents';
 import {
   inCheck, legalChessMoves, newChessGame, notation, opponent, pieceName,
   playChessMove, type ChessGame, type ChessMove, type ChessPiece,
@@ -60,6 +61,18 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
   const [promotion, setPromotion] = useState<Pending | null>(null);
   const [history, setHistory] = useState<ChessGame[]>([]);
   const [flipped, setFlipped] = useState(false);
+  const [mode, setMode] = useState<'solo' | 'local'>(() => {
+    try {
+      return localStorage.getItem('commontable:chess-mode') === 'solo' ? 'solo' : 'local';
+    } catch { return 'local'; }
+  });
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => {
+    try {
+      const value = localStorage.getItem('commontable:chess-level');
+      return value === 'easy' || value === 'hard' ? value : 'medium';
+    } catch { return 'medium'; }
+  });
+  const computerTurn = mode === 'solo' && game.turn === 'black' && !game.outcome;
   const moves = useMemo(() => legalChessMoves(game), [game]);
   const options = selected ? moves.filter((m) => same(selected, m.from)) : [];
   const checked = inCheck(game);
@@ -69,6 +82,27 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
   useEffect(() => {
     try { localStorage.setItem('commontable:chess', JSON.stringify(game)); } catch { /* Optional */ }
   }, [game]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('commontable:chess-mode', mode);
+      localStorage.setItem('commontable:chess-level', difficulty);
+    } catch { /* Optional */ }
+  }, [mode, difficulty]);
+  useEffect(() => {
+    if (!computerTurn) return;
+    const timer = window.setTimeout(() => {
+      const move = chooseChessMove(game, difficulty);
+      if (!move) return;
+      const next = playChessMove(game, move);
+      if (next === game) return;
+      setHistory((stack) => [...stack.slice(-199), game]);
+      setGame(next);
+      setSelected(null);
+      setPromotion(null);
+      onSound();
+    }, 320);
+    return () => window.clearTimeout(timer);
+  }, [game, computerTurn, difficulty, onSound]);
 
   function commit(move: ChessMove) {
     const next = playChessMove(game, move);
@@ -80,7 +114,7 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
     onSound();
   }
   function choose(square: Square) {
-    if (promotion || game.outcome) return;
+    if (promotion || game.outcome || computerTurn) return;
     const targetMoves = options.filter((m) => same(square, m.to));
     if (targetMoves.length) {
       if (targetMoves.some((m) => m.promotion)) {
@@ -103,12 +137,20 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
     setSelected(null); setPromotion(null); setHistory([]);
     onSound();
   }
+  const undoIndex = mode === 'solo'
+    ? history.findLastIndex((state) => state.turn === 'white')
+    : history.length - 1;
   function undo() {
-    if (!history.length) return;
-    setGame(history[history.length - 1]);
-    setHistory((stack) => stack.slice(0, -1));
+    if (undoIndex < 0) return;
+    setGame(history[undoIndex]);
+    setHistory((stack) => stack.slice(0, undoIndex));
     setSelected(null); setPromotion(null);
     onSound();
+  }
+  function changeMode(next: 'solo' | 'local') {
+    if (mode === next) return;
+    setMode(next);
+    fresh();
   }
   const winner = game.winner && COLORS[game.winner];
   const resultText = game.outcome === 'checkmate' ? winner + ' wins by checkmate!' :
@@ -116,6 +158,7 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
     game.outcome === 'threefold' ? 'Draw by repetition' :
     game.outcome === 'fifty-move' ? 'Draw by fifty-move rule' :
     game.outcome === 'insufficient-material' ? 'Draw: insufficient material' :
+    computerTurn ? 'Onyx is thinking…' :
     checked ? COLORS[game.turn] + ' is in check!' : COLORS[game.turn] + ' to move';
 
   const movePairs: { white: string; black?: string; n: number }[] = [];
@@ -148,7 +191,7 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
                 className={['chess-square', dark ? 'dark' : 'light',
                   active ? 'chosen' : '', legalTarget ? 'legal-target' : '',
                   prev ? 'last-move' : '', check ? 'checked-king' : ''].join(' ')}
-                onClick={() => choose(square)} aria-pressed={active}
+                onClick={() => choose(square)} disabled={computerTurn} aria-pressed={active}
                 aria-label={notation(square) +
                   (piece ? ', ' + piece.color + ' ' + pieceName(piece.type) : ', empty') +
                   (legalTarget ? ', legal destination' : '')}>
@@ -168,8 +211,9 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
       </div>
       <aside className="game-aside chess-aside">
         <div className="aside-overline">MAKE YOUR NEXT MOVE COUNT</div>
-        <h2>{resultText}</h2>
+        <h2 aria-live="polite">{resultText}</h2>
         <p className="game-message">{game.outcome ? 'The game is complete. Ready for another?' :
+          computerTurn ? 'The computer is searching legal responses right here in your browser.' :
           checked ? 'Your king is under attack. You must escape check.' :
           selected ? 'Choose one of the highlighted squares, or another piece.' :
           'Select a piece to show its legal moves.'}</p>
@@ -177,9 +221,25 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
           <span className={'chess-turn-pill ' + (game.turn === 'white' ? 'active' : '')}>♔ IVORY</span>
           <span className={'chess-turn-pill ' + (game.turn === 'black' ? 'active' : '')}>♚ ONYX</span>
         </div>
+        <div className="opponent-controls">
+          <label htmlFor="chess-opponent">WHO'S SITTING ACROSS?</label>
+          <select id="chess-opponent" value={mode} onChange={(e) => changeMode(e.target.value as 'solo' | 'local')}>
+            <option value="local">Two players · same device</option>
+            <option value="solo">Solo · play Onyx AI</option>
+          </select>
+          {mode === 'solo' && <>
+            <label htmlFor="chess-difficulty">COMPUTER DIFFICULTY</label>
+            <select id="chess-difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value as Difficulty)}>
+              <option value="easy">Easy · relaxed</option>
+              <option value="medium">Medium · thoughtful</option>
+              <option value="hard">Hard · looks further ahead</option>
+            </select>
+          </>}
+          <p>Changing modes starts a new game. The offline opponent needs no downloads or sign-in.</p>
+        </div>
         <div className="aside-controls">
           <button className="gold-button" onClick={fresh}>New game ↺</button>
-          <button className="quiet-button" disabled={!history.length} onClick={undo}>Undo last move</button>
+          <button className="quiet-button" disabled={undoIndex < 0} onClick={undo}>{mode === 'solo' ? 'Undo last turn' : 'Undo last move'}</button>
           <button className="quiet-button" onClick={() => { setFlipped((value) => !value); setSelected(null); setPromotion(null); }}>Flip the board ⇅</button>
         </div>
         <div className="chess-move-section">
@@ -196,7 +256,7 @@ export default function ChessRoom({ onSound }: { onSound: () => void }) {
           <h3>At this table</h3>
           <p>White moves first. Select a piece and choose a highlighted legal destination. Kings may castle when safe, pawns can capture en passant, and you may choose your promotion piece.</p>
           <p>Checkmate wins. Stalemate and insufficient material draw. For relaxed play, three repetitions or fifty moves without a capture or pawn move automatically draw.</p>
-          <p>Two people share this device. A solo computer opponent is planned for a future update.</p>
+          <p>{mode === 'solo' ? 'You play Ivory (White). The built-in computer plays Onyx (Black).' : 'Two people share this device.'} All AI calculations remain on your device. These are lightweight search opponents, not professional chess engines.</p>
         </div>
       </aside>
     </div>
