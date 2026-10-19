@@ -81,16 +81,24 @@ describe('Reversi: local rules', () => {
     expect(availableReversiMoves(next)).toHaveLength(0);
     expect(playReversiMove(next, { row: 4, col: 4 })).toBe(next);
   });
-  it('detects ties when both sides are blocked with equal discs', () => {
-    const b: ReversiBoard = Array.from({ length: 8 }, (_, row) =>
-      Array<ReversiBoard[number][number]>(8).fill(row < 4 ? 'onyx' : 'ivory'));
-    b[7][7] = null; b[7][6] = 'onyx'; b[7][5] = 'ivory';
-    // Onyx at 7,7 flips 7,6? Here Ivory at 7,6, Onyx at 7,5:
-    b[7][6] = 'ivory'; b[7][5] = 'onyx';
-    // Full board is not a tie after the final flipping move; confirm pure counts
-    // and no-move end state independently instead of claiming one.
-    expect(reversiScore(b).onyx + reversiScore(b).ivory).toBe(63);
-    expect(legalReversiMoves(b, 'ivory')).toHaveLength(0);
+  it('declares a genuine 32–32 tie when the last legal disc is played', () => {
+    const b = board();
+    b[0][1] = 'ivory';
+    b[0][2] = 'onyx';
+    b[1][0] = 'onyx';
+    b[1][1] = 'onyx';
+    let onyxCount = 3;
+    for (let row = 0; row < 8; row++) for (let col = 0; col < 8; col++) {
+      if ((row === 0 && col === 0) || b[row][col]) continue;
+      if (onyxCount < 30) { b[row][col] = 'onyx'; onyxCount++; }
+      else b[row][col] = 'ivory';
+    }
+    expect(reversiScore(b)).toEqual({ onyx: 30, ivory: 33 });
+    const next = playReversiMove(position(b, 'onyx'), { row: 0, col: 0 });
+    expect(next.finished).toBe(true);
+    expect(next.winner).toBeNull();
+    expect(reversiScore(next.board)).toEqual({ onyx: 32, ivory: 32 });
+    expect(next.notice).toContain('draw');
   });
 });
 describe('Reversi: offline opponent', () => {
