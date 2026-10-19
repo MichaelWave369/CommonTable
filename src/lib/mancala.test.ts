@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  legalMancalaMoves, newMancalaGame, ownPits, ownStore,
+  legalMancalaMoves, newMancalaGame, ownPits,
   playMancalaMove, storeScore, type MancalaGame,
 } from './mancala';
 import { chooseMancalaMove, type MancalaDifficulty } from './mancala-ai';
