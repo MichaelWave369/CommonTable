@@ -61,13 +61,14 @@ describe('Kalah board and sowing', () => {
     pits[2] = 1;
     pits[3] = 0;
     pits[9] = 5; // opposite of Ivory pit 3
-    pits[7] = 1; // keep opponent side alive if desired
+    pits[7] = 1;
+    pits[4] = 1; // keep the Ivory side alive to test the capture notice
     const next = playMancalaMove(custom(pits), 2);
     expect(next.pits[6]).toBe(6);
     expect(next.pits[3]).toBe(0);
     expect(next.pits[9]).toBe(0);
     expect(next.notice).toContain('Capture');
-    expect(total(next)).toBe(7);
+    expect(total(next)).toBe(8);
   });
   it('does not capture on an empty opposite pit or an occupied own pit', () => {
     const pits = empty(); pits[2] = 1; pits[3] = 1; pits[7] = 1;
