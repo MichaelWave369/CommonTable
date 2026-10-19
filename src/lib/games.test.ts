@@ -61,6 +61,9 @@ describe('Garden Mahjong Solitaire', () => {
     tiles = removePair(tiles, first[0].id, first[1].id);
     tiles = shuffleRemaining(tiles);
     for (let n = 0; n < 35; n++) {
+      // Alternate legal choices can dead-end even a solvable deal.
+      // Reshuffling constructs a fresh removal path for the remaining faces.
+      tiles = shuffleRemaining(tiles);
       const pair = availablePairs(tiles)[0];
       expect(pair).toBeDefined();
       tiles = removePair(tiles, pair[0].id, pair[1].id);
