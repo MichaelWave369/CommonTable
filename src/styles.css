@@ -617,3 +617,127 @@ h1, h2, h3, p { margin-top: 0; }
   .bg-room .game-aside { margin-top: 8px; }
   .backgammon-preview-point { width: 37px; }
 }
+
+
+/* v0.6: Reversi, the seventh table */
+.reversi-card { background: linear-gradient(145deg, #274b3e, #1b352e); border-color: #6b8674; }
+.reversi-preview {
+  display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(6, 1fr);
+  width: min(238px, 86%); aspect-ratio: 1; margin: 4px auto 8px;
+  border: 11px solid #986d47; border-radius: 5px; transform: rotate(-7deg);
+  box-shadow: 0 7px 0 #563821, 0 14px 22px #061c1480;
+}
+.rv-preview-square {
+  display: grid; place-items: center; background: #42775e;
+  border: 1px solid #2b5c4866; min-width: 0; min-height: 0;
+}
+.rv-preview-square:nth-child(odd) { background: #3c6b57; }
+.rv-preview-disc { display: block; width: 75%; aspect-ratio: 1; border-radius: 50%;
+  box-shadow: inset 0 2px 2px #ffffff35, 0 3px 2px #0e271d88; }
+.rv-preview-disc.ivory { background: radial-gradient(circle at 38% 28%, #fff5dc, #dfc9a3 76%, #967b5a); border: 2px solid #fff3d3; }
+.rv-preview-disc.onyx { background: radial-gradient(circle at 38% 28%, #66746a, #202e29 71%, #0b1512); border: 2px solid #17251e; }
+
+.rv-layout { grid-template-columns: minmax(0, 1.55fr) minmax(255px, .85fr); }
+.rv-surface { background: radial-gradient(ellipse at center, #396653, #1e4334 85%); padding: 22px 20px 19px; }
+.rv-top-rail {
+  max-width: 570px; display: flex; align-items: center; justify-content: space-between;
+  gap: 15px; margin: 0 auto 19px; color: #e6d0a6; font-size: 9px;
+  letter-spacing: .17em; font-weight: 700;
+}
+.rv-rail-brand { color: #ecd5aa; font: 20px Georgia, serif; }
+.rv-rail-brand span { font: 700 9px 'DM Sans', sans-serif; letter-spacing: .15em; margin-left: 4px; }
+.rv-board-frame {
+  margin: 0 auto; max-width: 570px; padding: 11px; border-radius: 5px;
+  background: linear-gradient(135deg, #aa7b50, #69452c 40%, #a6794f);
+  border: 2px solid #bc9066;
+  box-shadow: 0 7px 0 #482b20, 0 17px 32px #0f291bbf;
+}
+.rv-board {
+  display: grid; width: 100%; aspect-ratio: 1;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  border: 2px solid #193b2c;
+  background: #346a51;
+}
+.rv-square {
+  position: relative; min-width: 0; min-height: 0; overflow: hidden;
+  display: grid; place-items: center; padding: 0; border-radius: 0;
+  border: 1px solid #1d4535;
+  background: #477e61; transition: background .13s ease; isolation: isolate;
+}
+.rv-square:nth-child(16n + 1), .rv-square:nth-child(16n + 3),
+.rv-square:nth-child(16n + 5), .rv-square:nth-child(16n + 7),
+.rv-square:nth-child(16n + 10), .rv-square:nth-child(16n + 12),
+.rv-square:nth-child(16n + 14), .rv-square:nth-child(16n + 16) { background: #40775b; }
+.rv-square:disabled { opacity: 1; cursor: default; }
+.rv-square:hover:not(:disabled) { background: #528c6c; }
+.rv-square.legal:not(:disabled):hover { background: #619678; }
+.rv-square.hinted { box-shadow: inset 0 0 0 4px #efc27c; }
+.rv-square.last { background: #72946e; }
+.rv-disc {
+  position: relative; display: grid; place-items: center;
+  width: 77%; height: auto; aspect-ratio: 1 / 1; border-radius: 50%;
+  z-index: 2; pointer-events: none; box-shadow: inset 0 3px 4px #ffffff3b, 0 3px 3px #0b281b9c;
+}
+.rv-disc::after {
+  content: ''; position: absolute; inset: 12%; border: 1px solid #ffffff60;
+  border-radius: 50%; pointer-events: none;
+}
+.rv-disc.onyx {
+  background: radial-gradient(circle at 37% 28%, #667b70 0%, #253b32 43%, #182a24 79%, #0e1c16 100%);
+  border: 2px solid #1e352b;
+}
+.rv-disc.ivory {
+  background: radial-gradient(circle at 35% 27%, #fffaf0 0%, #ede0c6 45%, #d6c19d 81%, #ab8d68 100%);
+  border: 2px solid #f5e8cf;
+}
+.rv-legal-marker {
+  width: 27%; aspect-ratio: 1; border-radius: 50%; background: #163d2da3;
+  border: 1px solid #bcd9ae80; z-index: 1; pointer-events: none;
+}
+.rv-legal-marker.hint {
+  background: #eccc86; width: 46%; box-shadow: 0 0 18px #eccc86bb;
+  border-color: #fff8db;
+}
+.rv-last-ring {
+  position: absolute; inset: 5%; z-index: 3; border: 2px solid #f2d28d;
+  border-radius: 50%; pointer-events: none; opacity: .9;
+}
+.rv-scoreboard {
+  max-width: 570px; margin: 23px auto 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+  align-items: center; padding: 13px;
+  border: 1px solid #72937a70; border-radius: 7px; background: #172f26bd;
+}
+.rv-player-score { display: flex; align-items: center; gap: 14px; color: #d3c5ac; padding: 7px; border-radius: 5px; }
+.rv-player-score:last-child { justify-content: flex-end; text-align: right; }
+.rv-player-score.active { background: #59785a4d; }
+.rv-player-score .rv-disc { width: 38px; height: 38px; flex: 0 0 38px; }
+.rv-player-score small { display: block; color: #d3b88d; font: 700 9px 'DM Sans', sans-serif; letter-spacing: .12em; }
+.rv-player-score strong { display: block; font: 500 29px 'Playfair Display', Georgia, serif; color: #f7ead3; margin-top: 4px; }
+.rv-score-separator { color: #d4b888; text-align: center; font-size: 10px; font-weight: 700; letter-spacing: .1em; }
+.rv-aside h2 { line-height: 1.2; }
+@media (max-width: 960px) {
+  .rv-layout { grid-template-columns: minmax(0, 1.3fr) minmax(240px, .85fr); gap: 18px; }
+  .rv-surface { padding: 17px 13px; }
+  .rv-board-frame { padding: 8px; }
+  .rv-player-score { gap: 7px; }
+  .rv-player-score .rv-disc { width: 30px; height: 30px; flex-basis: 30px; }
+  .rv-player-score small { font-size: 8px; }
+}
+@media (max-width: 700px) {
+  .rv-layout { grid-template-columns: 1fr; }
+  .rv-board-frame { padding: 7px; }
+  .rv-surface { padding: 18px 10px; }
+  .rv-player-score .rv-disc { width: 36px; height: 36px; flex-basis: 36px; }
+  .rv-player-score strong { font-size: 25px; }
+  .rv-top-rail { font-size: 8px; }
+}
+@media (max-width: 390px) {
+  .rv-player-score .rv-disc { width: 27px; height: 27px; flex-basis: 27px; }
+  .rv-player-score small { font-size: 7px; letter-spacing: .05em; }
+  .rv-player-score { gap: 5px; }
+  .rv-disc { border-width: 1px; }
+  .rv-last-ring { border-width: 1px; }
+  .rv-rail-brand span { font-size: 7px; }
+}

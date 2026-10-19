@@ -4,7 +4,7 @@
 
 A relaxing, original collection of classic tabletop games. Built for quiet evenings, friendly competition and people who just want to play. **Free, open source, without accounts, tracking, ads or paywalls.**
 
-## v0.5: Backgammon and crowned Checkers polish
+## v0.6: Reversi joins the table
 
 - **Checkers:** American Checkers with local two-player mode **or** solo play versus a built-in Ember opponent (Easy/Medium/Hard). Forced captures, multiple jumps, crowning, turn/win detection, and undo.
 - **Mahjong Solitaire:** A 72-tile layered Garden layout with 18 faces, a solvable initial deal, free-tile validation, hints, and re-deal of remaining tiles. *This is the matching puzzle, not four-player Mahjong.*
@@ -12,8 +12,9 @@ A relaxing, original collection of classic tabletop games. Built for quiet eveni
 - **Solitaire:** Original draw-one Klondike with stock/waste recycling, four foundations, legal tableau stack moves, card reveals, undo, hints and browser saves.
 - **Chess:** Original standard Chess with local two-player mode **or** solo play versus built-in Onyx (Easy/Medium/Hard). King-safety move validation, castling, en passant, all four promotion options, checkmate, stalemate, and draw detection. Includes move log, move highlights, board flip, undo and saved progress.
 - **Backgammon:** A playable standard-setup, two-player local game with dice rolls, doubles, mandatory dice usage, legal destinations, blocked points, hits/bar re-entry, bearing off, win detection, undo, and browser-local saves.
+- **Reversi:** Original 8×8 game with legal flipping in eight directions, forced automatic passes, final disc-count scoring, move hints, highlights, undo and saved local progress. Supports pass-and-play or an Easy/Medium/Hard browser-local opponent.
 - A cozy responsive parlor lobby, optional soft sound effects, browser-local saved games, and accessible button controls.
-- Coming-soon previews for Go, Reversi, Mancala, and traditional four-player Mahjong.
+- Coming-soon previews for Go, Mancala, and traditional four-player Mahjong.
 
 Game logic is written independently, with no imported gameplay engines.
 
@@ -44,7 +45,7 @@ Checkers supports either two people sharing a device or a single Ivory player fa
 
 Mahjong Solitaire begins with a removal path built into the deal. Alternative player choices can cause a dead end, so the remaining tiles can be re-dealt into another removable arrangement without changing their face counts. Re-dealing can change tile positions to repair a blocked stack. A tile is free when not covered and with at least one horizontal side unblocked.
 
-All six games are local-only. Games save to the current browser using localStorage; clearing browser data clears the saved games. Nothing is sent to a server.
+All seven games are local-only. Games save to the current browser using localStorage; clearing browser data clears the saved games. Nothing is sent to a server.
 
 Dominoes is **Draw Dominoes**, not All Fives or a scoring league. Each player draws one tile at a time when blocked and must play when a legal match exists. When two players pass with an empty boneyard, the lower remaining pip total wins. The player's hand is concealed during turn handoff, but this is casual hot-seat play, not secure secrecy from someone inspecting browser storage.
 
@@ -69,6 +70,14 @@ This relaxed implementation has no doubling cube, gammon/backgammon match scorin
 ### Checkers visual correction (v0.5)
 
 Fixed 8 equal grid row heights and square 1:1 checker-piece dimensions. Crown symbols are absolutely positioned inside pieces so kings cannot distort the board layout. This only changes presentation; the original king movement rules remain unchanged.
+
+### Reversi (v0.6)
+
+The seventh table is **Reversi**: Onyx plays first, with Ivory as the second player. A legal placement must bracket one or more opposing discs in at least one of eight straight directions, flipping every enclosed line. If a player has no legal placement, their turn automatically passes. The game ends when neither player can move, and the higher disc count wins. Equal totals draw.
+
+Choose **Two players** for on-device pass-and-play, or **Solo** to play Ivory against Onyx (the computer opens). The optional computer uses an independently written browser-local positional evaluation and bounded Easy (1-ply), Medium (2-ply), and Hard (4-ply) alpha-beta search. Hints suggest a legal placement. Neither network access nor an external game engine is required. These are casual opponents, not competitive rated engines.
+
+Browser-local saves preserve your current game and opponent settings. Undo history is available during the current visit and can revert a complete player/computer exchange. Changing Solo/Two Players modes starts a fresh game. No web accounts, timer or server-side game state.
 
 ## Roadmap
 
