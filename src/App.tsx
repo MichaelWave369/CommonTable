@@ -282,13 +282,13 @@ function Mahjong({ sound }: { sound: boolean }) {
           <div className="aside-overline">SLOW DOWN & STAY A WHILE</div>
           <h2>{tiles.length === 0 ? 'Beautifully done!' : tiles.length + ' tiles left'}</h2>
           <p className="game-message">{tiles.length === 0 ? 'The table is clear. Another round?' :
-            pairs.length === 0 ? 'No free pairs left. Reshuffle to keep going.' :
+            pairs.length === 0 ? 'No free pairs left. Re-deal to keep going.' :
             'Find two identical tiles with an open side and nothing on top.'}</p>
           <div className="stat-strip"><div><small>PAIRS TO GO</small><strong>{tiles.length / 2}</strong></div><div><small>MOVES AVAILABLE</small><strong>{pairs.length}</strong></div><div><small>SHUFFLES</small><strong>{shuffles}</strong></div></div>
           <div className="aside-controls">
             <button className="gold-button" onClick={reset}>New layout ↺</button>
             <button className="quiet-button" onClick={hint} disabled={!pairs.length}>Show a pair ✧</button>
-            <button className="quiet-button" onClick={shuffle} disabled={!tiles.length}>Reshuffle remaining tiles</button>
+            <button className="quiet-button" onClick={shuffle} disabled={!tiles.length}>Re-deal remaining tiles</button>
           </div>
           <div className="how-to"><h3>At this table</h3><p>Match two tiles with the same number and suit. A tile is free when nothing covers it and at least one horizontal side is open.</p><p>This is Mahjong Solitaire, a matching puzzle. Traditional four-player Mahjong is planned as a separate game.</p></div>
         </aside>
