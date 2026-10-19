@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   applyBackgammonMove, legalBackgammonMoves, newBackgammonGame, rollBackgammon,
-  type BGFrom, type BGGame, type BGMove, type BGPlayer, type BGTo,
+  type BGFrom, type BGGame, type BGPlayer,
 } from '../lib/backgammon';
 
 const FACE_PIPS: Record<number, number[]> = {
